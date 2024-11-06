@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json="http://www.mulesoft.org/schema/mule/json" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd 
+                          http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+                          http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+
+
+
+  <!-- Transformador de objetos a JSON -->
+
+  <!-- Esquema de validación JSON (definir el esquema de la postura) -->
+
+  <!-- Flujo para obtener todas las posturas -->
+
+  <!-- Flujo para crear una nueva postura -->
+
+  <!-- Agrega los flujos para los demás endpoints -->
+  <!-- Ejemplo de flujo para PUT y DELETE sería similar -->
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5f38f333-9499-4593-98ff-f83055404ba2" basePath="/api">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="GETposturas" doc:id="41ae42bc-51d9-471f-a002-43a1bf0b41fc" >
+		<http:listener doc:name="GET /posturas" doc:id="8d77cff8-2230-4255-a492-9561a8921a8c" config-ref="HTTP_Listener_config" path="/posturas" allowedMethods="GET"/>
+		<set-payload doc:name="Datos en Java" doc:id="589f97d4-e4d6-4214-b10b-1bccf1519b70" value='#[%dw 2.0&#10;output application/java&#10;---&#10;[&#10;    {&#10;        id: 1,&#10;        nombre: "Tadasana",&#10;        descripcion: "Postura de la montaña",&#10;        nivelDificultad: "principiante",&#10;        beneficios: "Mejora la postura",&#10;        urlImagen: "http://example.com/tadasana.jpg"&#10;    },&#10;    {&#10;        id: 2,&#10;        nombre: "Bhujangasana",&#10;        descripcion: "Postura de la cobra",&#10;        nivelDificultad: "intermedio",&#10;        beneficios: "Fortalece la columna",&#10;        urlImagen: "http://example.com/bhujangasana.jpg"&#10;    }&#10;]]'/>
+		<ee:transform doc:name="Object to JSON" doc:id="489fcf9b-78d5-48cd-a5d6-fc147ab9d309" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ((asana) -> {
+    id: asana.id,
+    nombre: asana.nombre,
+    descripcion: asana.descripcion,
+    nivelDificultad: asana.nivelDificultad,
+    beneficios: asana.beneficios,
+    urlImagen: asana.urlImagen
+})
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f248e4c3-8bea-4c71-8f36-be28bca532fa" />
+	</flow>
+<flow name="POSTposturas" doc:id="cd969049-9df2-4897-b8e9-6d5c5b0a79df">
+  <!-- Configuración para el Listener HTTP -->
+  <http:listener doc:name="POST /posturas" doc:id="c132e04d-e92a-4a9b-8089-f9b48b943674" config-ref="HTTP_Listener_config" path="/posturas" allowedMethods="POST"/>
+
+  <!-- Transformación del objeto Java a JSON usando DataWeave -->
+  <ee:transform doc:name="Object to JSON" doc:id="e7b9d0ae-5483-4a55-a0b8-77a5e802a714">
+    <ee:message>
+      <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+    </ee:message>
+  </ee:transform>
+
+  <!-- Logger para ver el JSON generado -->
+  <logger level="INFO" doc:name="Logger" doc:id="44b36084-64fe-49b0-b8f0-af431d37c6ba" message="Transformed Payload: #[payload]"/>
+</flow>
+
+</mule>

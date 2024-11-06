@@ -1,0 +1,45 @@
+#%RAML 1.0
+title: Posturas de Yoga API
+version: 1.0
+baseUri: http://localhost:8081/api
+
+types:
+  Postura:
+    type: object
+    properties:
+      id: integer
+      nombre: string
+      descripcion: string
+      nivelDificultad: string
+      beneficios: string
+      urlImagen: string?  # El signo de interrogación indica que este campo es opcional
+
+  Error:
+    type: object
+    properties:
+      message: string  # Asegúrate de que los errores tengan una propiedad adecuada
+      code: integer    # Si es necesario, puedes agregar otros atributos como un código de error
+
+/posturas:
+  get:
+    description: Devuelve una lista de todas las posturas de yoga almacenadas
+    responses:
+      200:
+        body:
+          application/json:
+            type: array
+            items: Postura
+  post:
+    description: Crea una nueva postura de yoga
+    body:
+      application/json:
+        type: Postura
+    responses:
+      201:
+        body:
+          application/json:
+            type: Postura
+      400:
+        body:
+          application/json:
+            type: Error
